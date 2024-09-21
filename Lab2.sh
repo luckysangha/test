@@ -8,7 +8,14 @@ bq mk bqml_lab
 echo "Creating logistic regression model..."
 bq query --use_legacy_sql=false \
 'CREATE OR REPLACE MODEL `bqml_lab.sample_model`
-OPTIONS(model_type="logistic_reg") AS
+OPTIONS(
+  model_type="logistic_reg",
+  max_iterations=5,
+  learn_rate=0.1,
+  l1_reg=0.1,
+  l2_reg=0.1,
+  enable_global_explain=false
+) AS
 SELECT
   IF(totals.transactions IS NULL, 0, 1) AS label,
   COALESCE(device.operatingSystem, "") AS os,
@@ -16,8 +23,11 @@ SELECT
   COALESCE(geoNetwork.country, "") AS country,
   COALESCE(totals.pageviews, 0) AS pageviews
 FROM
-  `bigquery-public-data.google_analytics_sample.ga_sessions_20170101`
-LIMIT 100000;'
+  `bigquery-public-data.google_analytics_sample.ga_sessions_*`
+WHERE
+  _TABLE_SUFFIX BETWEEN "20170101" AND "20170131"
+LIMIT 50000;'
+
 
 
 # Step 3: Evaluate the model
