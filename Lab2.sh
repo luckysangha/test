@@ -13,11 +13,9 @@ OPTIONS(
   max_iterations=5,
   learn_rate_strategy="constant",
   learn_rate=0.1,
-  l1_reg=0.01,
-  l2_reg=0.01,
-  enable_global_explain=false,
-  early_stop=true,
-  data_split_method="NO_SPLIT"
+  l1_reg=0.1,
+  l2_reg=0.1,
+  enable_global_explain=false
 ) AS
 SELECT
   IF(totals.transactions IS NULL, 0, 1) AS label,
@@ -28,8 +26,8 @@ SELECT
 FROM
   `bigquery-public-data.google_analytics_sample.ga_sessions_*`
 WHERE
-  _TABLE_SUFFIX BETWEEN "20170101" AND "20170107"
-LIMIT 25000;'
+  _TABLE_SUFFIX BETWEEN "20170101" AND "20170131"
+LIMIT 50000;'
 
 # Step 3: Evaluate the model
 echo "Evaluating the model..."
@@ -45,7 +43,9 @@ FROM
       COALESCE(geoNetwork.country, "") AS country,
       COALESCE(totals.pageviews, 0) AS pageviews
     FROM
-      `bigquery-public-data.google_analytics_sample.ga_sessions_20170701`
+      `bigquery-public-data.google_analytics_sample.ga_sessions_*`
+    WHERE
+      _TABLE_SUFFIX BETWEEN "20170701" AND "20170801"
 ));'
 
 # Step 4: Predict purchases by country
@@ -62,7 +62,9 @@ FROM
       COALESCE(totals.pageviews, 0) AS pageviews,
       COALESCE(geoNetwork.country, "") AS country
     FROM
-      `bigquery-public-data.google_analytics_sample.ga_sessions_20170701`
+      `bigquery-public-data.google_analytics_sample.ga_sessions_*`
+    WHERE
+      _TABLE_SUFFIX BETWEEN "20170701" AND "20170801"
 ))
 GROUP BY country
 ORDER BY total_predicted_purchases DESC
@@ -80,9 +82,12 @@ FROM
       COALESCE(device.operatingSystem, "") AS os,
       device.isMobile AS is_mobile,
       COALESCE(totals.pageviews, 0) AS pageviews,
+      COALESCE(geoNetwork.country, "") AS country,
       fullVisitorId
     FROM
-      `bigquery-public-data.google_analytics_sample.ga_sessions_20170701`
+      `bigquery-public-data.google_analytics_sample.ga_sessions_*`
+    WHERE
+      _TABLE_SUFFIX BETWEEN "20170701" AND "20170801"
 ))
 GROUP BY fullVisitorId
 ORDER BY total_predicted_purchases DESC
