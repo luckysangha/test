@@ -20,7 +20,6 @@ WITH filtered_data AS (
     `bigquery-public-data.google_analytics_sample.ga_sessions_*`
   WHERE
     _TABLE_SUFFIX BETWEEN "20160801" AND "20161231"  -- Smaller time range for faster processing
-  TABLESAMPLE SYSTEM (50 PERCENT)  -- Sample 50% of the data
 )
 SELECT * FROM filtered_data
 LIMIT 50000;  -- Reduced the row limit to 50,000 for faster model creation'
