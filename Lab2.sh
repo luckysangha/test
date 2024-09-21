@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Step 1: Create a dataset if it doesn't exist
+# Step 1: Create a dataset if it doesn't exist (you can ignore the error if the dataset already exists)
 echo "Creating dataset bqml_lab..."
-bq mk bqml_lab
+bq mk --dataset --location=US bqml_lab || echo "Dataset already exists, continuing..."
 
-# Step 2: Create the logistic regression model with optimizations
+# Step 2: Create the logistic regression model with optimizations (No TABLESAMPLE)
 echo "Creating optimized logistic regression model..."
 bq query --use_legacy_sql=false \
 'CREATE OR REPLACE MODEL `bqml_lab.sample_model`
