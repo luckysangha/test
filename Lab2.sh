@@ -1,31 +1,28 @@
 #!/bin/bash
 
-# Step 1: Create a dataset if it doesn't exist (you can ignore the error if the dataset already exists)
+# Step 1: Create a dataset if it doesn't exist
 echo "Creating dataset bqml_lab..."
-bq mk --dataset --location=US bqml_lab || echo "Dataset already exists, continuing..."
+bq mk bqml_lab
 
-# Step 2: Create the logistic regression model with optimizations (No TABLESAMPLE)
-echo "Creating optimized logistic regression model..."
+# Step 2: Create the logistic regression model
+echo "Creating logistic regression model..."
 bq query --use_legacy_sql=false \
 'CREATE OR REPLACE MODEL `bqml_lab.sample_model`
 OPTIONS(model_type="logistic_reg") AS
-WITH filtered_data AS (
-  SELECT
-    IF(totals.transactions IS NULL, 0, 1) AS label,
-    IFNULL(device.operatingSystem, "") AS os,
-    device.isMobile AS is_mobile,
-    IFNULL(geoNetwork.country, "") AS country,
-    IFNULL(totals.pageviews, 0) AS pageviews
-  FROM
-    `bigquery-public-data.google_analytics_sample.ga_sessions_*`
-  WHERE
-    _TABLE_SUFFIX BETWEEN "20160801" AND "20161231"  -- Smaller time range for faster processing
-)
-SELECT * FROM filtered_data
-LIMIT 50000;  -- Reduced the row limit to 50,000 for faster model creation'
+SELECT
+  IF(totals.transactions IS NULL, 0, 1) AS label,
+  IFNULL(device.operatingSystem, "") AS os,
+  device.isMobile AS is_mobile,
+  IFNULL(geoNetwork.country, "") AS country,
+  IFNULL(totals.pageviews, 0) AS pageviews
+FROM
+  `bigquery-public-data.google_analytics_sample.ga_sessions_*`
+WHERE
+  _TABLE_SUFFIX BETWEEN "20160801" AND "20170631"
+LIMIT 100000;'
 
 # Step 3: Evaluate the model
-echo "Evaluating the optimized model..."
+echo "Evaluating the model..."
 bq query --use_legacy_sql=false \
 'SELECT
   *
