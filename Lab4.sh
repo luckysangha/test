@@ -1,8 +1,6 @@
 #!/bin/bash
 
-#----------------------------------------------------start--------------------------------------------------#
-
-echo "Starting Execution"
+echo "Starting Lab"
 bq mk ecommerce
 bq query --nouse_legacy_sql '
 CREATE OR REPLACE MODEL `ecommerce.classification_model`
