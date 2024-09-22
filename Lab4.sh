@@ -44,7 +44,7 @@ FROM
 LEFT JOIN
   return_visitors rv
 USING (fullVisitorId)
-WHERE RAND() < 0.25;  -- Use a more aggressive sampling rate of 25%
+WHERE RAND() < 0.25;'  -- Use a more aggressive sampling rate of 25%
 
   
 bq query --nouse_legacy_sql '
